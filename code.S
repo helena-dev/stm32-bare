@@ -1,16 +1,18 @@
 #include "constants.S"
-.text
 
+.section VECTOR_TABLE
 .align 4
 vector_table:
 .word 0
-.word start+1
+.word _start+1
 .rept 256-2
     .word 0
 .endr
 
+.text
 .align 4
-start:
+.global _start
+_start:
 // Clock stuff
 ldr r1, =RCC_AHB1ENR
 ldr r0, [r1]
