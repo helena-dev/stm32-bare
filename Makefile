@@ -1,4 +1,4 @@
-all: romboot
+all: ramboot
 
 PREFIX = arm-none-eabi-
 
@@ -9,8 +9,10 @@ code.elf: code.lds code.o
 	$(PREFIX)ld -T $^ -o $@
 
 _foony:
-romboot: code.elf _foony
-	openocd -f board/stm32f4discovery.cfg -c "program code.elf preverify verify reset 0x08000000"
+romboot: code.elf openocd.cfg _foony
+	openocd -f openocd.cfg -c "init" -c "romboot" -c "exit"
+ramboot: code.elf openocd.cfg _foony
+	openocd -f openocd.cfg -c "init" -c "ramboot" -c "exit"
 
 clean:
 	rm -rf *.elf *.o
