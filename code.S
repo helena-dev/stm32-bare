@@ -59,46 +59,56 @@ add r5, r5, #8
 b init_leds_loop
 init_leds_end:
 
+mov r4, #4
+mov r3, #0
 loop:
 //Read the button (GPIOA0) pin
 ldr r1, =GPIOx_IDR(GPIOA_BASE)
 ldr r0, [r1]
-mov r3, #1
-and r0, r3
+mov r6, #1
+and r0, r6
 cmp r0, #0
 
 ldr r1, =GPIOx_BSRR(GPIOD_BASE)
 beq if0
 
-// Set GPIOD15
-ldr r5, =(LED_SEQUENCE + 4)
-light_led:
+// Set GPIODx
+cmp r3, #1
+beq flag_on
+mov r3, #1
+ldr r5, =LED_SEQUENCE
+add r5, r5, r4
 ldr r7, [r5]
-cmp r7, #0
-beq end_light_led
     mov r2, #0b1
     lsl r2, r2, r7
     str r2, [r1]
-add r5, r5, #8
-b light_led
-end_light_led:
+add r4, #8
+cmp r4, #36 // (#of leds)*8+4
+bne led_end
+mov r4, #4
+led_end:
+flag_on:
 b endif
 
 if0:
 // Reset GPIODx
+cmp r3, #0
+beq flag_off
+mov r3, #0
 ldr r5, =(LED_SEQUENCE + 4)
 reset_led:
 ldr r7, [r5]
 cmp r7, #0
 beq end_reset_led
-    ldr r4, =16
-    add r6, r7, r4
+    ldr r6, =16
+    add r6, r7, r6
     mov r2, #0b1
     lsl r2, r2, r6
     str r2, [r1]
 add r5, r5, #8
 b reset_led
 end_reset_led:
+flag_off:
 endif:
 
 b loop
