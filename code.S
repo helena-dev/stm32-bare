@@ -79,9 +79,9 @@ mov r3, #1
 ldr r5, =LED_SEQUENCE
 add r5, r5, r4
 ldr r7, [r5]
-    mov r2, #0b1
-    lsl r2, r2, r7
-    str r2, [r1]
+mov r2, #0b1
+lsl r2, r2, r7
+str r2, [r1]
 add r4, #8
 cmp r4, #36 // (#of leds)*8+4
 bne led_end
@@ -94,6 +94,13 @@ if0:
 // Reset GPIODx
 cmp r3, #0
 beq flag_off
+ldr r3, =80000
+counter:
+cmp r3, #0
+beq counter_ended
+sub r3, #1
+b counter
+counter_ended:
 mov r3, #0
 ldr r5, =(LED_SEQUENCE + 4)
 reset_led:
