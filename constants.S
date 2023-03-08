@@ -8,3 +8,5 @@
 
 #define RCC_BASE 0x40023800
 #define RCC_AHB1ENR (RCC_BASE + 0x30)
+
+#define MEM_END (0x20000000 + 0x1C000)

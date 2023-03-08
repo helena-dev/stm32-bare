@@ -3,7 +3,7 @@
 .section VECTOR_TABLE
 .align 4
 vector_table:
-.word 0
+.word MEM_END
 .word _start+1
 .rept 256-2
     .word 0
