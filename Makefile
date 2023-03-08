@@ -5,8 +5,8 @@ PREFIX = arm-none-eabi-
 code.o: code.S constants.S
 	$(PREFIX)gcc -c -mcpu=cortex-m4 $< -o $@
 
-misc.o: misc.S
-	$(PREFIX)gcc -c -mcpu=cortex-m4 $< -o $@
+misc.o: misc.c
+	$(PREFIX)gcc -c -O2 -mcpu=cortex-m4 $< -o $@
 
 code.elf: code.lds code.o misc.o
 	$(PREFIX)ld -T $^ -o $@

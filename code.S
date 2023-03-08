@@ -21,40 +21,33 @@ orr r0, r0, r3
 str r0, [r1]
 
 // Set GPIOA0 to input
-ldr r1, =GPIOx_MODER(GPIOA_BASE)
-ldr r0, [r1]
-ldr r3, =~(0b11<<0)
-and r0, r3
-ldr r3, =(0b00<<0)
-orr r0, r0, r3
-str r0, [r1]
+ldr r0, =GPIOx_MODER(GPIOA_BASE)
+mov r1, #0
+mov r2, #2
+mov r3, #0b00
+bl setRegisterBits
 
 // Set GPIOA0 to pull-down
-ldr r1, =GPIOx_PUPDR(GPIOA_BASE)
-ldr r0, [r1]
-ldr r3, =~(0b11<<0)
-and r0, r3
-ldr r3, =(0b10<<0)
-orr r0, r0, r3
-str r0, [r1]
+ldr r0, =GPIOx_PUPDR(GPIOA_BASE)
+mov r1, #0
+mov r2, #2
+mov r3, #0b10
+bl setRegisterBits
 
 ldr r5, =LED_SEQUENCE
 init_leds_loop:
 ldr r1, [r5]
 cmp r1, #0
 beq init_leds_end
-    // Set GPIOD15 to output
-    ldr r0, [r1]
-    ldr r6, [r5, #4]
-    lsl r6, r6, #1
-    mov r3, #0b11
-    lsl r3, r3, r6
-    mvn r3, r3
-    and r0, r3
+    // Set GPIODX to output
+    push {r1}
+    mov r0, r1
+    ldr r1, [r5, #4]
+    lsl r1, r1, #1
+    mov r2, #2
     mov r3, #0b01
-    lsl r3, r3, r6
-    orr r0, r0, r3
-    str r0, [r1]
+    bl setRegisterBits
+    pop {r1}
 add r5, r5, #8
 b init_leds_loop
 init_leds_end:
