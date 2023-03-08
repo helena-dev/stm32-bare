@@ -63,10 +63,12 @@ mov r4, #4
 mov r3, #0
 loop:
 //Read the button (GPIOA0) pin
-ldr r1, =GPIOx_IDR(GPIOA_BASE)
-ldr r0, [r1]
-mov r6, #1
-and r0, r6
+ldr r0, =GPIOx_IDR(GPIOA_BASE)
+mov r1, #0
+mov r2, #1
+push {r3}
+bl getRegisterBits
+pop {r3}
 cmp r0, #0
 
 ldr r1, =GPIOx_BSRR(GPIOD_BASE)
