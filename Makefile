@@ -8,8 +8,8 @@ code.o: code.S constants.S
 misc.o: misc.c misc.h
 	$(PREFIX)gcc -c -O2 -mcpu=cortex-m4 $< -o $@
 
-main.o: main.S constants.S
-	$(PREFIX)gcc -c -mcpu=cortex-m4 $< -o $@
+main.o: main.c misc.h constants.S
+	$(PREFIX)gcc -c -O2 -mcpu=cortex-m4 $< -o $@
 
 code.elf: code.lds code.o misc.o main.o
 	$(PREFIX)ld -T $^ -o $@
