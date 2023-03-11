@@ -5,7 +5,7 @@ PREFIX = arm-none-eabi-
 code.o: code.S constants.S
 	$(PREFIX)gcc -c -mcpu=cortex-m4 $< -o $@
 
-misc.o: misc.c
+misc.o: misc.c misc.h
 	$(PREFIX)gcc -c -O2 -mcpu=cortex-m4 $< -o $@
 
 main.o: main.S constants.S
