@@ -8,7 +8,10 @@ code.o: code.S constants.S
 misc.o: misc.c
 	$(PREFIX)gcc -c -O2 -mcpu=cortex-m4 $< -o $@
 
-code.elf: code.lds code.o misc.o
+main.o: main.S constants.S
+	$(PREFIX)gcc -c -mcpu=cortex-m4 $< -o $@
+
+code.elf: code.lds code.o misc.o main.o
 	$(PREFIX)ld -T $^ -o $@
 
 _foony:
