@@ -11,5 +11,4 @@
 #define RCC_BASE 0x40023800
 #define RCC_AHB1ENR __register(RCC_BASE + 0x30)
 
-#define MY_VARIABLE ((0x1C000)/2 + 0)
 #define MEM_END (0x20000000 + 0x1C000)
