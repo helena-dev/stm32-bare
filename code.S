@@ -1,4 +1,4 @@
-#include "constants.S"
+#include "constants.h"
 
 .section VECTOR_TABLE
 .align 4

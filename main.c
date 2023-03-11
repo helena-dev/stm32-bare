@@ -1,4 +1,4 @@
-#include "constants.S"
+#include "constants.h"
 #include "misc.h"
 
 extern uint32_t LED_SEQUENCE;

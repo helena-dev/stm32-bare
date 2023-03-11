@@ -2,13 +2,13 @@ all: ramboot
 
 PREFIX = arm-none-eabi-
 
-code.o: code.S constants.S
+code.o: code.S constants.h
 	$(PREFIX)gcc -c -mcpu=cortex-m4 $< -o $@
 
 misc.o: misc.c misc.h
 	$(PREFIX)gcc -c -O2 -mcpu=cortex-m4 $< -o $@
 
-main.o: main.c misc.h constants.S
+main.o: main.c misc.h constants.h
 	$(PREFIX)gcc -c -O2 -mcpu=cortex-m4 $< -o $@
 
 code.elf: code.lds code.o misc.o main.o
