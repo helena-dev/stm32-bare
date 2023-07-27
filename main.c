@@ -16,12 +16,12 @@ void _start() {
     }
 
     uint32_t *ledPtr = &LED_SEQUENCE;
-    uint8_t flag = 0;
-    while (1) {
+    bool flag = false;
+    while (true) {
         uint32_t btnDown = getRegisterBits(GPIOx_IDR(GPIOA_BASE), 0, 1);
         if (btnDown) {
             if (!flag) {
-                flag = 1;
+                flag = true;
                 *GPIOx_BSRR(ledPtr[0]) = 0b1 << ledPtr[1];
                 ledPtr += 2;
                 if (!ledPtr[0]) {
@@ -32,7 +32,7 @@ void _start() {
             if (flag) {
                 for (volatile uint32_t debounce = 80000; debounce > 0; debounce--) {
                 }
-                flag = 0;
+                flag = false;
                 for (uint32_t *firstLedPtr = &LED_SEQUENCE + 1; *firstLedPtr; firstLedPtr += 2) {
                     *GPIOx_BSRR(GPIOD_BASE) = 0b1 << ((*firstLedPtr) + 16);
                 }
@@ -41,7 +41,7 @@ void _start() {
     }
 
     // Spin
-    while (1) {
+    while (true) {
 
     }
 }

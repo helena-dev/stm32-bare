@@ -13,3 +13,7 @@
 #define RCC_AHB1ENR __register(RCC_BASE + 0x30)
 
 #define MEM_END (0x20000000 + 0x1C000)
+
+#define bool _Bool
+#define false 0
+#define true 1
