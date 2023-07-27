@@ -16,3 +16,16 @@ uint32_t getRegisterBits(volatile uint32_t *address, uint8_t start, uint8_t leng
 :param i32 value: bits to set
 **/
 void setRegisterBits(volatile uint32_t *address, uint8_t start, uint8_t length, uint32_t value);
+
+/**
+:param i32 base: GPIO port base
+:param i8 start: pin number
+:param i8 pullConfig: PUPDR config
+**/
+void gpioSetInput(volatile uint32_t *base, uint8_t pin, uint8_t pullConfig);
+
+/**
+:param i32 base: GPIO port base
+:param i8 start: pin number
+**/
+void gpioSetOutput(volatile uint32_t *base, uint8_t pin);

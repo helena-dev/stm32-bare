@@ -7,14 +7,12 @@ void _start() {
     // Clock stuff
     *RCC_AHB1ENR |= 1 << 3 | 1 << 0;
 
-    // Set GPIOA0 to input
-    setRegisterBits(GPIOx_MODER(GPIOA_BASE), 0, 2, 0b00);
-    // Set GPIOA0 to pull-down
-    setRegisterBits(GPIOx_PUPDR(GPIOA_BASE), 0, 2, 0b10);
+    // Set GPIOA0 to input and pull-down
+    gpioSetInput(GPIOA_BASE, 0, 0b10);
 
     for (uint32_t *ledPtr = &LED_SEQUENCE; *ledPtr; ledPtr += 2) {
         // Set GPIODX to output
-        setRegisterBits((volatile uint32_t *)ledPtr[0], ledPtr[1] * 2, 2, 0b01);
+        gpioSetOutput(ledPtr[0], ledPtr[1]);
     }
 
     uint32_t *ledPtr = &LED_SEQUENCE;

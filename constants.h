@@ -7,6 +7,7 @@
 #define GPIOx_PUPDR(base) __register(base + 0x0C)
 #define GPIOx_IDR(base) __register(base + 0x10)
 #define GPIOx_BSRR(base) __register(base + 0x18)
+#define GPIOx_OTYPER(base) __register(base + 0x04)
 
 #define RCC_BASE 0x40023800
 #define RCC_AHB1ENR __register(RCC_BASE + 0x30)
