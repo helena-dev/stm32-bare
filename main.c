@@ -36,7 +36,7 @@ void _start() {
     led_tuple_t *ledPtr = LED_SEQUENCE;
     bool flag = false;
     while (true) {
-        uint32_t btnDown = getRegisterBits(GPIOx_IDR(GPIOA_BASE), 0, 1);
+        uint32_t btnDown = gpioRead(GPIOA_BASE, 0);
         if (btnDown) {
             if (!flag) {
                 flag = true;
