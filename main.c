@@ -1,7 +1,25 @@
 #include "constants.h"
 #include "misc.h"
 
-extern uint32_t LED_SEQUENCE;
+typedef struct led_tuple {
+    volatile uint32_t * base;
+    uint8_t pin;
+} led_tuple_t;
+
+led_tuple_t LED_SEQUENCE[] = {
+    {GPIOD_BASE, 13},
+    {GPIOD_BASE, 12},
+    {GPIOD_BASE, 15},
+    {GPIOD_BASE, 14},
+    {0, 0}
+};
+
+void _start();
+
+void *vector_table[256] __attribute__ ((section ("VECTOR_TABLE"))) ={
+    (void *)MEM_END,
+    _start+1,
+};
 
 void _start() {
     // Clock stuff
@@ -10,22 +28,22 @@ void _start() {
     // Set GPIOA0 to input and pull-down
     gpioSetInput(GPIOA_BASE, 0, 0b10);
 
-    for (uint32_t *ledPtr = &LED_SEQUENCE; *ledPtr; ledPtr += 2) {
+    for (led_tuple_t *ledPtr = LED_SEQUENCE; ledPtr->base; ledPtr += 1) {
         // Set GPIODX to output
-        gpioSetOutput(ledPtr[0], ledPtr[1]);
+        gpioSetOutput(ledPtr->base, ledPtr->pin);
     }
 
-    uint32_t *ledPtr = &LED_SEQUENCE;
+    led_tuple_t *ledPtr = LED_SEQUENCE;
     bool flag = false;
     while (true) {
         uint32_t btnDown = getRegisterBits(GPIOx_IDR(GPIOA_BASE), 0, 1);
         if (btnDown) {
             if (!flag) {
                 flag = true;
-                *GPIOx_BSRR(ledPtr[0]) = 0b1 << ledPtr[1];
-                ledPtr += 2;
-                if (!ledPtr[0]) {
-                    ledPtr = &LED_SEQUENCE;
+                gpioWrite(ledPtr->base, ledPtr->pin,true);
+                ledPtr += 1;
+                if (!ledPtr->base) {
+                    ledPtr = LED_SEQUENCE;
                 }
             }
         } else {
@@ -33,8 +51,8 @@ void _start() {
                 for (volatile uint32_t debounce = 80000; debounce > 0; debounce--) {
                 }
                 flag = false;
-                for (uint32_t *firstLedPtr = &LED_SEQUENCE + 1; *firstLedPtr; firstLedPtr += 2) {
-                    *GPIOx_BSRR(GPIOD_BASE) = 0b1 << ((*firstLedPtr) + 16);
+                for (led_tuple_t *ledPtrOff = LED_SEQUENCE; ledPtrOff->base; ledPtrOff += 1) {
+                    gpioWrite(ledPtrOff->base, ledPtrOff->pin, false);
                 }
             }
         }

@@ -1,10 +1,8 @@
 all: ramboot
 
 PREFIX = arm-none-eabi-
-CFLAGS = -O2 -mcpu=cortex-m4 -std=c99 -Wall -Wextra
 
-code.o: code.S constants.h
-	$(PREFIX)gcc -c -mcpu=cortex-m4 $< -o $@
+CFLAGS = -O2 -mcpu=cortex-m4 -std=c99 -Wall -Wextra
 
 misc.o: misc.c misc.h
 	$(PREFIX)gcc -c $(CFLAGS) $< -o $@
@@ -12,7 +10,7 @@ misc.o: misc.c misc.h
 main.o: main.c misc.h constants.h
 	$(PREFIX)gcc -c $(CFLAGS) $< -o $@
 
-code.elf: code.lds code.o misc.o main.o
+code.elf: code.lds misc.o main.o
 	$(PREFIX)ld -T $^ -o $@
 
 _foony:
