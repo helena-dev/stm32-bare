@@ -8,9 +8,21 @@
 #define GPIOx_IDR(base) __register(base, 0x10)
 #define GPIOx_BSRR(base) __register(base, 0x18)
 #define GPIOx_OTYPER(base) __register(base, 0x04)
+#define GPIOx_AFRL(base) __register(base, 0x20)
+#define GPIOx_AFRH(base) __register(base, 0x24)
 
 #define RCC_BASE ((volatile uint32_t *)0x40023800)
 #define RCC_AHB1ENR __register(RCC_BASE, 0x30)
+#define RCC_APB1ENR __register(RCC_BASE, 0x40)
+
+#define USART2_BASE ((volatile uint32_t *)0x40004400)
+#define USARTx_SR(base) __register(base, 0x00)
+#define USARTx_DR(base) __register(base, 0x04)
+#define USARTx_BRR(base) __register(base, 0x08)
+#define USARTx_CR1(base) __register(base, 0x0C)
+#define USARTx_CR2(base) __register(base, 0x10)
+#define USARTx_CR3(base) __register(base, 0x14)
+#define USARTx_GTPR(base) __register(base, 0x18)
 
 #define MEM_END (0x20000000 + 0x1C000)
 

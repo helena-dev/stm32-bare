@@ -24,9 +24,23 @@ void *vector_table[256] __attribute__ ((section ("VECTOR_TABLE"))) ={
 void _start() {
     // Clock stuff
     *RCC_AHB1ENR |= 1 << 3 | 1 << 0;
+    *RCC_APB1ENR |= 1 << 17;
 
     // Set GPIOA0 to input and pull-down
     gpioSetInput(GPIOA_BASE, 0, 0b10);
+    // Expose USART2_TX and USART2_RX
+    gpioSetAlternateFunction(GPIOA_BASE, 2, 7);
+    gpioSetAlternateFunction(GPIOA_BASE, 3, 7);
+
+    // Configure USART2 (8N1)
+    setRegisterBits(USARTx_CR1(USART2_BASE), 13, 1, 1); // UE = 1
+    setRegisterBits(USARTx_CR1(USART2_BASE), 12, 1, 0); // M = 0
+    setRegisterBits(USARTx_CR2(USART2_BASE), 12, 2, 0); // Stop bits = 1
+    setRegisterBits(USARTx_CR1(USART2_BASE), 15, 1, 0); // OVER8 = 0
+    *USARTx_BRR(USART2_BASE) = 0b10001011; // Baud rate divisor for 115200 Hz bitrate, 16 MHz clock, and oversampling by 16
+    setRegisterBits(USARTx_CR1(USART2_BASE), 3, 1, 1); // TE = 1
+
+    usartWriteString(USART2_BASE, "Hello World!💖");
 
     for (led_tuple_t *ledPtr = LED_SEQUENCE; ledPtr->base; ledPtr += 1) {
         // Set GPIODX to output

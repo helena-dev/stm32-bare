@@ -45,3 +45,22 @@ bool gpioRead(volatile uint32_t *base, uint8_t pin);
 :param bool value: new pin state
 **/
 void gpioWrite(volatile uint32_t *base, uint8_t pin, bool value);
+
+/**
+:param i32 base: GPIO port base
+:param i4 pin: pin number
+:param i4 funcNumber: alternate function number
+**/
+void gpioSetAlternateFunction(volatile uint32_t *base, uint8_t pin, uint8_t funcNumber);
+
+/**
+:param i32 base: USART port base
+:param i8 byte: byte to write
+**/
+void usartWriteByte(volatile uint32_t *base, uint8_t byte);
+
+/**
+:param i32 base: USART port base
+:param char string: string to write
+**/
+void usartWriteString(volatile uint32_t *base, const char *string);
