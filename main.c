@@ -32,7 +32,43 @@ void _start() {
         // Set GPIODX to output
         gpioSetOutput(ledPtr->base, ledPtr->pin);
     }
-
+    gpioSetOutput(GPIOA_BASE, 1);
+    gpioSetOutput(GPIOA_BASE, 2);
+    gpioSetOutput(GPIOA_BASE, 3);
+    // PA1: Vsync
+    // PA2: Hsync
+    // PA3: Video
+    uint32_t rowCounter = 0;
+    uint32_t waveCounter = 0;
+    uint32_t videoStartRow = 0;
+    uint32_t videoEndRow = 0;
+    while (true) {
+        gpioWrite(GPIOA_BASE, 2, 1);
+        rowCounter++;
+        if (rowCounter == 369) {
+            rowCounter = 0;
+            gpioWrite(GPIOA_BASE, 1, 0);
+            waveCounter++;
+            if (waveCounter == 100) {
+                waveCounter = 0;
+            }
+            videoStartRow = 2*(waveCounter < 50 ? waveCounter : 100 - waveCounter) + 5;
+            videoEndRow = 350 - videoStartRow;
+        } else if (rowCounter == 16) {
+            gpioWrite(GPIOA_BASE, 1, 1);
+        }
+        if (rowCounter == videoStartRow) {
+            gpioWrite(GPIOA_BASE, 3, 1);
+        } else if (rowCounter == videoEndRow) {
+            gpioWrite(GPIOA_BASE, 3, 0);
+        }
+        
+        for (volatile uint32_t debounce = 10; debounce > 0; debounce--) {
+        }
+        gpioWrite(GPIOA_BASE, 2, 0);
+        for (volatile uint32_t debounce = 61; debounce > 0; debounce--) {
+        }
+    }
     led_tuple_t *ledPtr = LED_SEQUENCE;
     bool flag = false;
     while (true) {
