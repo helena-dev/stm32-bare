@@ -32,11 +32,19 @@ typedef struct vector_table {
 } vector_table_t;
 
 void _start();
+void _systick();
 
 vector_table_t vector_table __attribute__ ((section ("VECTOR_TABLE"))) ={
     .stackInit = (void *)MEM_END,
     .Reset = _start+1,
+    .SysTick = _systick+1,
 };
+
+bool ledFlag = true;
+void _systick() {
+    gpioWrite(LED_SEQUENCE[2].base, LED_SEQUENCE[2].pin, !ledFlag);
+    ledFlag =! ledFlag;
+}
 
 void _start() {
     // Clock stuff
@@ -51,6 +59,7 @@ void _start() {
 
     //Configure SysTick
     setRegisterBits(STK_LOAD, 0, 24, 1000000); //Set  Reload value
+    setRegisterBits(STK_CTRL, 1, 1, 1); //SysTick exception request enabled
     setRegisterBits(STK_CTRL, 2, 1, 0); //Systick source: AHB/8 (AHB = HSI (16 MHz))
     setRegisterBits(STK_CTRL, 0, 1, 1); //Enable counter
 
@@ -71,7 +80,6 @@ void _start() {
 
     led_tuple_t *ledPtr = LED_SEQUENCE;
     bool flag = false;
-    bool ledFlag = false;
     while (true) {
         uint32_t btnDown = gpioRead(GPIOA_BASE, 0);
         if (btnDown) {
@@ -92,12 +100,6 @@ void _start() {
                     gpioWrite(ledPtrOff->base, ledPtrOff->pin, false);
                 }
             }
-        }
-
-        uint32_t tickDown = getRegisterBits(STK_CTRL, 16, 1);
-        if (tickDown) {
-            gpioWrite(LED_SEQUENCE[2].base, LED_SEQUENCE[2].pin, !ledFlag);
-            ledFlag = !ledFlag;
         }
     }
 
