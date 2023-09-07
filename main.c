@@ -32,6 +32,11 @@ void _start() {
     gpioSetAlternateFunction(GPIOA_BASE, 2, 7);
     gpioSetAlternateFunction(GPIOA_BASE, 3, 7);
 
+    //Configure SysTick
+    setRegisterBits(STK_LOAD, 0, 24, 1000000); //Set  Reload value
+    setRegisterBits(STK_CTRL, 2, 1, 0); //Systick source: AHB/8 (AHB = HSI (16 MHz))
+    setRegisterBits(STK_CTRL, 0, 1, 1); //Enable counter
+
     // Configure USART2 (8N1)
     setRegisterBits(USARTx_CR1(USART2_BASE), 13, 1, 1); // UE = 1
     setRegisterBits(USARTx_CR1(USART2_BASE), 12, 1, 0); // M = 0
@@ -49,6 +54,7 @@ void _start() {
 
     led_tuple_t *ledPtr = LED_SEQUENCE;
     bool flag = false;
+    bool ledFlag = false;
     while (true) {
         uint32_t btnDown = gpioRead(GPIOA_BASE, 0);
         if (btnDown) {
@@ -69,6 +75,12 @@ void _start() {
                     gpioWrite(ledPtrOff->base, ledPtrOff->pin, false);
                 }
             }
+        }
+
+        uint32_t tickDown = getRegisterBits(STK_CTRL, 16, 1);
+        if (tickDown) {
+            gpioWrite(LED_SEQUENCE[2].base, LED_SEQUENCE[2].pin, !ledFlag);
+            ledFlag = !ledFlag;
         }
     }
 

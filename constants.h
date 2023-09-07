@@ -24,6 +24,12 @@
 #define USARTx_CR3(base) __register(base, 0x14)
 #define USARTx_GTPR(base) __register(base, 0x18)
 
+#define STK_BASE ((volatile uint32_t *)0xE000E010)
+#define STK_CTRL __register(STK_BASE, 0x00)
+#define STK_LOAD __register(STK_BASE, 0x04)
+#define STK_VAL __register(STK_BASE, 0x08)
+#define STK_CALIB __register(STK_BASE, 0x0C)
+
 #define MEM_END (0x20000000 + 0x1C000)
 
 #define bool _Bool
