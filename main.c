@@ -40,10 +40,20 @@ vector_table_t vector_table __attribute__ ((section ("VECTOR_TABLE"))) ={
     .SysTick = _systick+1,
 };
 
-bool ledFlag = true;
+uint32_t phase = 1; //It do be like that sometimes
 void _systick() {
-    gpioWrite(LED_SEQUENCE[2].base, LED_SEQUENCE[2].pin, !ledFlag);
-    ledFlag =! ledFlag;
+    if (!phase) {
+        for (uint32_t i = 0; i < 4; i++) {
+            gpioWrite(LED_SEQUENCE[i].base, LED_SEQUENCE[i].pin, false);
+        }
+        setRegisterBits(STK_LOAD, 0, 24, 2000000);
+    } else {
+        gpioWrite(LED_SEQUENCE[phase-1].base, LED_SEQUENCE[phase-1].pin, true);
+        setRegisterBits(STK_LOAD, 0, 24, 2000000/(phase*phase));
+    }
+    setRegisterBits(STK_VAL, 0, 1, 1);
+    phase++;
+    if (phase == 5) phase = 0;
 }
 
 void _start() {
