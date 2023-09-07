@@ -14,11 +14,28 @@ led_tuple_t LED_SEQUENCE[] = {
     {0, 0}
 };
 
+typedef struct vector_table {
+    void *stackInit;
+    void *Reset;
+    void *NMI;
+    void *HardFault;
+    void *MemManage;
+    void *BusFault;
+    void *UsageFault;
+    void *reserved_0[4];
+    void *SVCall;
+    void *DebugMonitor;
+    void *reserved_1;
+    void *PendSV;
+    void *SysTick;
+    void *extra[256-16];
+} vector_table_t;
+
 void _start();
 
-void *vector_table[256] __attribute__ ((section ("VECTOR_TABLE"))) ={
-    (void *)MEM_END,
-    _start+1,
+vector_table_t vector_table __attribute__ ((section ("VECTOR_TABLE"))) ={
+    .stackInit = (void *)MEM_END,
+    .Reset = _start+1,
 };
 
 void _start() {
