@@ -44,19 +44,37 @@ vector_table_t vector_table __attribute__ ((section ("VECTOR_TABLE"))) ={
     .EXTI0 = _exti0+1,
 };
 
+bool phase = 0;
+bool btnDown = false;
 void _systick() {
-    gpioWrite(LED_SEQUENCE[0].base, LED_SEQUENCE[0].pin, false);
-    setRegisterBits(STK_CTRL, 0, 1, 0); //Disable counter
+    if (!phase) {
+        setRegisterBits(EXTI_IMR, 0, 1, 1); //Unmask EXTI0
+        if (btnDown != gpioRead(GPIOA_BASE, 0)) {
+            _exti0();
+            return;
+        }
+        if (btnDown) setRegisterBits(STK_CTRL, 0, 1, 0); //Disable counter
+        else setRegisterBits(STK_LOAD, 0, 24, 2000000*0.25 - 20000);
+        phase = 1;
+    } else {
+        gpioWrite(LED_SEQUENCE[0].base, LED_SEQUENCE[0].pin, false);
+        setRegisterBits(STK_CTRL, 0, 1, 0); //Disable counter
+    }
     setRegisterBits(STK_VAL, 0, 1, 1); //Reset timer to clear interrupt
 }
 
 void _exti0() {
+    btnDown = gpioRead(GPIOA_BASE, 0);
     *EXTI_PR = 1 << 0; // Clear EXTI peding interrupt register
     *NVIC_ICPRx(0) = 1 << 6; // Clear NVIC peding interrupt register
-    gpioWrite(LED_SEQUENCE[0].base, LED_SEQUENCE[0].pin, true);
-    setRegisterBits(STK_LOAD, 0, 24, 2000000*0.25);
+    phase = 0;
+    if (btnDown) {
+        gpioWrite(LED_SEQUENCE[0].base, LED_SEQUENCE[0].pin, true);
+    }
+    setRegisterBits(STK_LOAD, 0, 24, 20000); //Debounce for 10 ms
     setRegisterBits(STK_VAL, 0, 1, 1); //Reset timer
     setRegisterBits(STK_CTRL, 0, 1, 1); //Enable counter
+    setRegisterBits(EXTI_IMR, 0, 1, 0); //Mask EXTI0
 }
 
 void _start() {
@@ -88,7 +106,7 @@ void _start() {
     setRegisterBits(SYSCFG_EXTICR1, 0, 4, 0b0000); //Select GPIOA0 as the source input for EXTI0
     setRegisterBits(EXTI_IMR, 0, 1, 1); //Unmask EXTI0
     setRegisterBits(EXTI_RTSR, 0, 1, 1); //Set EXTI0 to fire on a rising edge
-    setRegisterBits(EXTI_FTSR, 0, 1, 0); //Set EXTI0 to not fire on a falling edge
+    setRegisterBits(EXTI_FTSR, 0, 1, 1); //Set EXTI0 to fire on a falling edge
     *NVIC_ISERx(0) = 1 << 6; // Enable NVIC line 6 interrupt
 
     for (led_tuple_t *ledPtr = LED_SEQUENCE; ledPtr->base; ledPtr += 1) {
