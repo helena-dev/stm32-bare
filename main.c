@@ -28,32 +28,35 @@ typedef struct vector_table {
     void *reserved_1;
     void *PendSV;
     void *SysTick;
-    void *extra[256-16];
+    void *extra1[6];
+    void *EXTI0;
+    void *extra2[256-16-7];
 } vector_table_t;
 
 void _start();
 void _systick();
+void _exti0();
 
 vector_table_t vector_table __attribute__ ((section ("VECTOR_TABLE"))) ={
     .stackInit = (void *)MEM_END,
     .Reset = _start+1,
     .SysTick = _systick+1,
+    .EXTI0 = _exti0+1,
 };
 
-uint32_t phase = 0; //It do be like that sometimes
 void _systick() {
-    if (!phase) {
-        for (uint32_t i = 0; i < 4; i++) {
-            gpioWrite(LED_SEQUENCE[i].base, LED_SEQUENCE[i].pin, false);
-        }
-        setRegisterBits(STK_LOAD, 0, 24, 2000000);
-    } else {
-        gpioWrite(LED_SEQUENCE[phase-1].base, LED_SEQUENCE[phase-1].pin, true);
-        setRegisterBits(STK_LOAD, 0, 24, 2000000/(phase*phase));
-    }
-    setRegisterBits(STK_VAL, 0, 1, 1);
-    phase++;
-    if (phase == 5) phase = 0;
+    gpioWrite(LED_SEQUENCE[0].base, LED_SEQUENCE[0].pin, false);
+    setRegisterBits(STK_CTRL, 0, 1, 0); //Disable counter
+    setRegisterBits(STK_VAL, 0, 1, 1); //Reset timer to clear interrupt
+}
+
+void _exti0() {
+    *EXTI_PR = 1 << 0; // Clear EXTI peding interrupt register
+    *NVIC_ICPRx(0) = 1 << 6; // Clear NVIC peding interrupt register
+    gpioWrite(LED_SEQUENCE[0].base, LED_SEQUENCE[0].pin, true);
+    setRegisterBits(STK_LOAD, 0, 24, 2000000*0.25);
+    setRegisterBits(STK_VAL, 0, 1, 1); //Reset timer
+    setRegisterBits(STK_CTRL, 0, 1, 1); //Enable counter
 }
 
 void _start() {
@@ -68,10 +71,8 @@ void _start() {
     gpioSetAlternateFunction(GPIOA_BASE, 3, 7);
 
     //Configure SysTick
-    setRegisterBits(STK_LOAD, 0, 24, 1000000); //Set  Reload value
     setRegisterBits(STK_CTRL, 1, 1, 1); //SysTick exception request enabled
     setRegisterBits(STK_CTRL, 2, 1, 0); //Systick source: AHB/8 (AHB = HSI (16 MHz))
-    setRegisterBits(STK_CTRL, 0, 1, 1); //Enable counter
 
     // Configure USART2 (8N1)
     setRegisterBits(USARTx_CR1(USART2_BASE), 13, 1, 1); // UE = 1
@@ -83,34 +84,16 @@ void _start() {
 
     usartWriteString(USART2_BASE, "Hello World!💖");
 
+    // Configure interrupt on GPIOA0
+    setRegisterBits(SYSCFG_EXTICR1, 0, 4, 0b0000); //Select GPIOA0 as the source input for EXTI0
+    setRegisterBits(EXTI_IMR, 0, 1, 1); //Unmask EXTI0
+    setRegisterBits(EXTI_RTSR, 0, 1, 1); //Set EXTI0 to fire on a rising edge
+    setRegisterBits(EXTI_FTSR, 0, 1, 0); //Set EXTI0 to not fire on a falling edge
+    *NVIC_ISERx(0) = 1 << 6; // Enable NVIC line 6 interrupt
+
     for (led_tuple_t *ledPtr = LED_SEQUENCE; ledPtr->base; ledPtr += 1) {
         // Set GPIODX to output
         gpioSetOutput(ledPtr->base, ledPtr->pin);
-    }
-
-    led_tuple_t *ledPtr = LED_SEQUENCE;
-    bool flag = false;
-    while (true) {
-        uint32_t btnDown = gpioRead(GPIOA_BASE, 0);
-        if (btnDown) {
-            if (!flag) {
-                flag = true;
-                gpioWrite(ledPtr->base, ledPtr->pin,true);
-                ledPtr += 1;
-                if (!ledPtr->base) {
-                    ledPtr = LED_SEQUENCE;
-                }
-            }
-        } else {
-            if (flag) {
-                for (volatile uint32_t debounce = 80000; debounce > 0; debounce--) {
-                }
-                flag = false;
-                for (led_tuple_t *ledPtrOff = LED_SEQUENCE; ledPtrOff->base; ledPtrOff += 1) {
-                    gpioWrite(ledPtrOff->base, ledPtrOff->pin, false);
-                }
-            }
-        }
     }
 
     // Spin

@@ -30,6 +30,25 @@
 #define STK_VAL __register(STK_BASE, 0x08)
 #define STK_CALIB __register(STK_BASE, 0x0C)
 
+#define SYSCFG_BASE ((volatile uint32_t *)0x40013800)
+#define SYSCFG_EXTICR1 __register(SYSCFG_BASE, 0x08)
+#define SYSCFG_EXTICR2 __register(SYSCFG_BASE, 0x0C)
+#define SYSCFG_EXTICR3 __register(SYSCFG_BASE, 0x10)
+#define SYSCFG_EXTICR4 __register(SYSCFG_BASE, 0x14)
+
+#define EXTI_BASE ((volatile uint32_t *)0x40013C00)
+#define EXTI_IMR __register(EXTI_BASE, 0x00)
+#define EXTI_RTSR __register(EXTI_BASE, 0x08)
+#define EXTI_FTSR __register(EXTI_BASE, 0x0C)
+#define EXTI_PR __register(EXTI_BASE, 0x14)
+
+#define NVIC_BASE ((volatile uint32_t *)0xE000E000)
+#define NVIC_ISERx(x) __register(NVIC_BASE, 0x100 + 0x04 * x)
+#define NVIC_ICERx(x) __register(NVIC_BASE, 0x180 + 0x04 * x)
+#define NVIC_ISPRx(x) __register(NVIC_BASE, 0x200 + 0x04 * x)
+#define NVIC_ICPRx(x) __register(NVIC_BASE, 0x280 + 0x04 * x)
+#define NVIC_IABRx(x) __register(NVIC_BASE, 0x300 + 0x04 * x)
+
 #define MEM_END (0x20000000 + 0x1C000)
 
 #define bool _Bool
