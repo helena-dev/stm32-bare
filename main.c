@@ -40,7 +40,7 @@ vector_table_t vector_table __attribute__ ((section ("VECTOR_TABLE"))) ={
     .SysTick = _systick+1,
 };
 
-uint32_t phase = 1; //It do be like that sometimes
+uint32_t phase = 0; //It do be like that sometimes
 void _systick() {
     if (!phase) {
         for (uint32_t i = 0; i < 4; i++) {
